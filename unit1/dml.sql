@@ -11,6 +11,8 @@ WITH cte_date_range
                 Max(event_date) AS latest_update
          FROM   cte_date_range
          GROUP  BY id)
+
+
 SELECT all_events.id,
        all_events.event_date,
        all_events.event_name,
