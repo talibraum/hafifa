@@ -1,7 +1,6 @@
-from flask import  jsonify
+from flask import  jsonify,Flask
 from config import Config
 from models import db, Event
-from flask import Flask
 
 app = Flask(__name__)
 app.config.from_object(Config)
