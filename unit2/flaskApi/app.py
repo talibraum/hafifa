@@ -2,6 +2,7 @@ from flask import  jsonify,Flask
 from config import Config
 from models import db, Event
 from sqlalchemy import func, and_
+import pandas as pd
 
 
 app = Flask(__name__)
@@ -10,13 +11,7 @@ app.config.from_object(Config)
 db.init_app(app)
 
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
 
-@app.route('/name/<name>')
-def hello_by_name(name):  # put application's code here
-    return f'Hello {name}!'
 
 @app.route('/events', methods=['GET'])
 def get_events():
@@ -44,7 +39,6 @@ def get_events_by_range(start_date, end_date):
             cte_date_range.c.id
         ).cte('cte_get_last_update')
 
-        # Main query with join
         events_query = db.session.query(
             Event
         ).join(
@@ -65,8 +59,85 @@ def get_events_by_range(start_date, end_date):
         print(error_msg)  
         return jsonify({"error": error_msg}), 500
 
+@app.route('/events/earliest', methods=['GET'])
+def get_earliest_event():
+    try:
+        events = Event.query.all()
 
+        events_as_dict = [event.as_dict() for event in events]
 
+        df = pd.DataFrame(events_as_dict)
+
+        df_sorted = df.sort_values(by='event_date')
+
+        sorted_events = df_sorted.to_dict(orient='records')
+
+        return jsonify(sorted_events)
+
+    except Exception as e:
+        error_msg = f"An error occurred: {str(e)}"
+        print(error_msg)
+        return jsonify({"error": error_msg}), 500
+
+@app.route('/event/name/<name>', methods=['GET'])
+def get_event_by_name(name):
+    try:
+        events = Event.query.all()
+
+        events_as_dict = [event.as_dict() for event in events]
+
+        df = pd.DataFrame(events_as_dict)
+
+        filtered_events = df[df["event_name"].str.contains(name, case=False)]
+
+        filtered_events_dict = filtered_events.to_dict(orient='records')
+
+        return jsonify(filtered_events_dict)
+
+    except Exception as e:
+        error_msg = f"An error occurred: {str(e)}"
+        print(error_msg)
+        return jsonify({"error": error_msg}), 500
+
+@app.route('/event/address/<address>', methods=['GET'])
+def get_event_by_address(address):
+    try:
+        events = Event.query.all()
+
+        events_as_dict = [event.as_dict() for event in events]
+
+        df = pd.DataFrame(events_as_dict)
+
+        filtered_events = df[df["event_address"].str.contains(address, case=False)]
+
+        filtered_events_dict = filtered_events.to_dict(orient='records')
+
+        return jsonify(filtered_events_dict)
+
+    except Exception as e:
+        error_msg = f"An error occurred: {str(e)}"
+        print(error_msg)
+        return jsonify({"error": error_msg}), 500
+
+@app.route('/events/latest', methods=['GET'])
+def get_latest_event():
+    try:
+        events = Event.query.all()
+
+        events_as_dict = [event.as_dict() for event in events]
+
+        df = pd.DataFrame(events_as_dict)
+
+        df_sorted = df.sort_values(by='event_date',ascending=False)
+
+        sorted_events = df_sorted.to_dict(orient='records')
+
+        return jsonify(sorted_events)
+
+    except Exception as e:
+        error_msg = f"An error occurred: {str(e)}"
+        print(error_msg)
+        return jsonify({"error": error_msg}), 500
 
 if __name__ == '__main__':
     app.run()
