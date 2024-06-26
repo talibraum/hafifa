@@ -55,17 +55,14 @@ def get_events_by_range(start_date, end_date):
             )
         )
 
-        # Execute the query and fetch all results
         events = events_query.all()
 
-        # Convert the results to a list of dictionaries using the as_dict method
         events_as_dict = [event.as_dict() for event in events]
 
-        # Return the JSON response
         return jsonify(events_as_dict)
     except Exception as e:
         error_msg = f"An error occurred: {str(e)}"
-        print(error_msg)  # Print to console for debugging
+        print(error_msg)  
         return jsonify({"error": error_msg}), 500
 
 
