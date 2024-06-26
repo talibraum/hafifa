@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from datetime import datetime
+
 
 db = SQLAlchemy()
 
@@ -18,4 +20,13 @@ class Event(db.Model):
         return f'<Event {self.event_name}>'
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        event_date_str = datetime.fromtimestamp(self.event_date / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+
+        event_dict = {}
+        for column in self.__table__.columns:
+            if column.name == 'event_date':
+                event_dict[column.name] = event_date_str
+            else:
+                event_dict[column.name] = getattr(self, column.name)
+
+        return event_dict
