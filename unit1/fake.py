@@ -53,5 +53,5 @@ def insert_data(conn, table_name, event_id):
     print(f"Inserted event with the id {event_id}  into {table_name}.")
 
 conn = create_connection()
-generate_data(conn, 'public.events', 10)
+generate_data(conn, 'public.more_events', 10)
 conn.close()

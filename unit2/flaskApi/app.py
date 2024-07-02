@@ -9,17 +9,17 @@ app.config.from_object(Config)
 
 db.init_app(app)
 
-
 def fill_default_values(df):
     default_texts = {
         'event_name': 'name not included',
         'event_address': 'address not included',
         'event_desc': 'description not included'
     }
+
     for column, default_value in default_texts.items():
         df[column] = df[column].apply(lambda x: default_value if isinstance(x, str) and x.strip() == "" else x)
-    return df
 
+    return df
 
 @app.route('/events', methods=['GET'])
 def get_events():
@@ -30,7 +30,6 @@ def get_events():
     df = fill_default_values(df)
 
     return jsonify(df.to_dict(orient='records'))
-
 
 @app.route('/events/<start_date>/<end_date>', methods=['GET'])
 def get_events_by_range(start_date, end_date):
@@ -67,7 +66,9 @@ def get_events_by_range(start_date, end_date):
         events_as_dict = [event.as_dict() for event in events]
 
         df = pd.DataFrame(events_as_dict)
-        df = fill_default_values(df)
+        if len(events_as_dict)>0:
+         df = fill_default_values(df)
+
 
         return jsonify(df.to_dict(orient='records'))
     except Exception as e:
